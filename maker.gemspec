@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{}
   spec.homepage      = "https://github.com/gera-gas/maker"
   spec.license       = "MIT"
-  spec.files         = ["lib/maker.rb", "lib/maker/version.rb", "lib/maker/utils.rb", "lib/maker/cmdlist.rb", "lib/maker/application.rb", "lib/maker/env.rb", "lib/maker/templates.rb"]
+  spec.files         = ["lib/maker.rb", "lib/maker/version.rb", "lib/maker/utils.rb", "lib/maker/cmdlist.rb", "lib/maker/application.rb", "lib/maker/env.rb", "lib/maker/templates.rb", "lib/maker/make.rb"]
   spec.bindir        = "bin"
   spec.executables   = "maker"
   spec.require_paths = ["lib"]

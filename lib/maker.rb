@@ -5,11 +5,7 @@ require 'maker/utils'
 require 'maker/env'
 require 'maker/cmdlist'
 require 'maker/application'
-
-#require './maker/version.rb'
-#require './maker/utils.rb'
-#require './maker/cmdlist.rb'
-#require './maker/application.rb'
+require 'maker/make'
 
 module Maker
   # Global context.
@@ -20,9 +16,9 @@ module Maker
   }
   # CLI options.
   @@options = {
-    :version => nil,
-    :verbose => nil,
+    :version   => nil,
+    :verbose   => nil,
+    # for 'Maker cmd' only.
+    :loopmode => nil,
   }
 end
-
-#Maker::Application.new.run

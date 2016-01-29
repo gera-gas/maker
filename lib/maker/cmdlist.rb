@@ -2,6 +2,37 @@ require "erb"
 
 module Maker
 
+  PROFILE = {
+    # project directory tree struct.
+    :systree => {
+      :app     => 'app',
+      :config  => 'config',
+      :doc     => 'doc',
+      :lib     => 'lib',
+      :test    => 'test',
+      :tools   => 'tools',
+      :vendor  => 'vendor',
+      :readme  => 'README.md',
+      :license => 'LICENSE.txt',
+    },
+    # application directory tree struct.
+    :apptree => {
+      :doc      => 'doc',
+      :inc      => 'include',
+      :script   => 'script',
+      :src      => 'src',
+      :makefile => 'Rakefile',
+    },
+    # templates directory tree struct.
+    :gentree => {
+      :template => 'templates',
+    },
+    # config directory tree struct.
+    :cfgtree => {
+      :file => 'config.rb',
+    },
+  }
+
   # Handler of 'project' command.
   # Project directory skelet:
   #
@@ -40,78 +71,9 @@ module Maker
       Maker.makedir( projectname + '/tools' )
       Maker.makedir( projectname + '/vendor' )
       # create project describe file
-      profile = {
-        # project directory tree struct.
-        :systree => {
-          :app     => 'app',
-          :config  => 'config',
-          :doc     => 'doc',
-          :lib     => 'lib',
-          :test    => 'test',
-          :tools   => 'tools',
-          :vendor  => 'vendor',
-          :readme  => 'README.md',
-          :license => 'LICENSE.txt',
-        },
-        # application directory tree struct.
-        :apptree => {
-          :doc      => 'doc',
-          :inc      => 'include',
-          :script   => 'script',
-          :src      => 'src',
-          :makefile => 'Rakefile',
-        },
-        # templates directory tree struct.
-        :gentree => {
-          :template => 'templates',
-        },
-        # config directory tree struct.
-        :cfgtree => {
-          :file => 'config.rb',
-        },
-      }
       f = File.new( "#{projectname}/#{@@context[:profile]}", 'w' )
-      f.puts '# This is project struct file.'
-      f.puts '# You can prcessing carefully modify this fields,'
-      f.puts '# but do not rename map variables.'
-      f.puts '# '
-      f.puts '# ' + Time.now.to_s
-      f.puts '$project = {'
-      f.puts "  :name => '#{projectname}',"
-      f.puts '  # project directory tree struct.'
-      f.puts '  :systree => {'
-      f.puts "    :app     => '#{profile[:systree][:app]}',"
-      f.puts "    :config  => '#{profile[:systree][:config]}',"
-      f.puts "    :doc     => '#{profile[:systree][:doc]}',"
-      f.puts "    :lib     => '#{profile[:systree][:lib]}',"
-      f.puts "    :test    => '#{profile[:systree][:test]}',"
-      f.puts "    :tools   => '#{profile[:systree][:tools]}',"
-      f.puts "    :vendor  => '#{profile[:systree][:vendor]}',"
-      f.puts "    :readme  => '#{profile[:systree][:readme]}',"
-      f.puts "    :license => '#{profile[:systree][:license]}',"
-      f.puts '  },'
-      f.puts '  # application directory tree struct.'
-      f.puts '  :apptree => {'
-      f.puts "    :doc      => '#{profile[:apptree][:doc]}',"
-      f.puts "    :inc      => '#{profile[:systree][:app]}',"
-      f.puts "    :script   => '#{profile[:apptree][:script]}',"
-      f.puts "    :src      => '#{profile[:apptree][:src]}',"
-      f.puts "    :makefile => '#{profile[:apptree][:makefile]}',"
-      f.puts '  },'
-      f.puts '  # templates directory tree struct.'
-      f.puts '  :gentree => {'
-      f.puts "    :template => '#{profile[:gentree][:template]}',"
-      f.puts '  },'
-      f.puts '  # config directory tree struct.'
-      f.puts '  :cfgtree => {'
-      f.puts "    :file => '#{profile[:cfgtree][:file]}',"
-      f.puts '  },'
-      f.puts '  # config GNU GCC descriptors.'
-      f.puts '  :gcc => {'
-      f.puts "    :cc => '',"
-      f.puts "    :makelist => [],"
-      f.puts '  },'
-      f.puts '}'
+      erbout = ERB.new( $tmp_profile, 0, "%<>" )
+      f.puts erbout.result
       f.close
       # generate licese for project.
       print "Do you want use MIT license? [y/n] : "
@@ -120,32 +82,9 @@ module Maker
         case STDIN.gets.strip
         when 'y'
           puts "generate MIT license file ..."
-          erbout = ERB.new( $tmp_license, 0, "%<>" )
           f = File.new( projectname + '/LICENSE.txt', 'w' )
+          erbout = ERB.new( $tmp_license, 0, "%<>" )
           f.puts erbout.result
-=begin
-          f.puts 'The MIT License (MIT)'
-          f.puts ''
-          f.puts "Copyright (c) #{Time.now.to_s[0,4]} #{ENV['USER']}"
-          f.puts ''
-          f.puts 'Permission is hereby granted, free of charge, to any person obtaining a copy'
-          f.puts 'of this software and associated documentation files (the "Software"), to deal'
-          f.puts 'in the Software without restriction, including without limitation the rights'
-          f.puts 'to use, copy, modify, merge, publish, distribute, sublicense, and/or sell'
-          f.puts 'copies of the Software, and to permit persons to whom the Software is'
-          f.puts 'furnished to do so, subject to the following conditions:'
-          f.puts ''
-          f.puts 'The above copyright notice and this permission notice shall be included in'
-          f.puts 'all copies or substantial portions of the Software.'
-          f.puts ''
-          f.puts 'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR'
-          f.puts 'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,'
-          f.puts 'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE'
-          f.puts 'AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER'
-          f.puts 'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,'
-          f.puts 'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN'
-          f.puts 'THE SOFTWARE.'
-=end
           f.close
           break
         when 'n'
@@ -155,106 +94,43 @@ module Maker
         end
       end
       # set templates and config tree.
-      tmpdir = "#{projectname}/#{profile[:systree][:config]}/#{profile[:gentree][:template]}"
-      cfgdir = "#{projectname}/#{profile[:systree][:config]}"
+      tmpdir = "#{projectname}/#{Maker::PROFILE[:systree][:config]}/#{Maker::PROFILE[:gentree][:template]}"
+      cfgdir = "#{projectname}/#{Maker::PROFILE[:systree][:config]}"
       # generate templates and config tree.
       Maker.makedir( tmpdir )
       Maker.makedir( cfgdir )
       # create global configure file.
-      f = File.new( "#{cfgdir}/#{profile[:cfgtree][:file]}", 'w' )
-      f.puts '# Global configuration script.'
-      f.puts "require 'maker'"
-      f.puts ""
-      f.puts "# Write you setting for each OS types."
-      f.puts "case Maker.ostype"
-      f.puts "when 'win32'"
-      f.puts "  # TODO: only for Windows famaly (32 bitness)."
-      f.puts "when 'win64'"
-      f.puts "  # TODO: only for Windows famaly (64 bitness)."
-      f.puts "when 'unix'"
-      f.puts "  # TODO: only for Unix famaly."
-      f.puts "end"
-      f.puts ""
-      f.puts "# Global config variables."
-      f.puts "$global = {"
-      f.puts "  # Templates setting for 'gen' command."
-      f.puts "  :gen => {"
-      f.puts "    :src => ['.c', '.cc', '.cpp', '.c++', '.cxx'],"
-      f.puts "    :hdr => ['.h', '.hpp', '.hxx'],"
-      f.puts "  },"
-      f.puts "}"
+      f = File.new( "#{cfgdir}/#{Maker::PROFILE[:cfgtree][:file]}", 'w' )
+      $tmp_global.each do |line|
+        f.puts line
+      end
       f.close
       # create example template files.
       f = File.new( "#{tmpdir}/main.c.erb", 'w' )
-      f.puts '/**'
-      f.puts " *  @file  <%= ARGV[1] %>"
-      f.puts ' *  @date  <%= Time.now %>'
-      f.puts ' *  @brief Entry point to program.'
-      f.puts ' */'
-      f.puts '#include <stdlib.h>'
-      f.puts ''
-      f.puts 'int main ( int argc, char* argv[] )'
-      f.puts '{'
-      f.puts '    return 0;'
-      f.puts '}'
+      $tmp_main_c.each do |line|
+        f.puts line
+      end
       f.close
-      f = File.new( "#{tmpdir}/cpp.erb", 'w' )
-      f.puts '/**'
-      f.puts ' *  @file  <%= ARGV[1] %>'
-      f.puts ' *  @date  <%= Time.now %>'
-      f.puts ' */'
+      f = File.new( "#{tmpdir}/src.erb", 'w' )
+      $tmp_cpp.each do |line|
+        f.puts line
+      end
       f.close
-      f = File.new( "#{tmpdir}/hpp.erb", 'w' )
-      f.puts '<% headername = ARGV[1].upcase.gsub(?.,?_) %>'
-      f.puts "#ifndef <%= headername %>"
-      f.puts "#define <%= headername %>"
-      f.puts '/**'
-      f.puts ' *  @file  <%= ARGV[1] %>'
-      f.puts ' *  @date  <%= Time.now %>'
-      f.puts ' */'
-      f.puts '#ifdef __cplusplus'
-      f.puts 'extern "C" {'
-      f.puts '#endif'
-      f.puts ''
-      f.puts '#ifdef __cplusplus'
-      f.puts '}'
-      f.puts '#endif'
-      f.puts ''
-      f.puts '#endif /* <%= headername %> */'
+      f = File.new( "#{tmpdir}/hdr.erb", 'w' )
+      $tmp_hpp.each do |line|
+        f.puts line
+      end
       f.close
       # generate readme file for project.
       f = File.new( projectname + '/README.md', 'w' )
-      f.puts "# #{projectname}"
-      f.puts 'TODO: describe your project...'
-      f.puts ''
-      f.puts "# Project Tree"
-      f.puts '* [app]       -- project target applications.'
-      f.puts '* [config]    -- directory with configuration files and templates.'
-      f.puts '* [doc]       -- directory with documentation on source code.'
-      f.puts '* [lib]       -- library applications.'
-      f.puts '* [test]      -- contain complex and finally tests for project.'
-      f.puts '* [tools]     -- utilites and tools for project.'
-      f.puts '* [vendor]    -- third-party source code.'
-      f.puts '* project.rb  -- project structuries file in Ruby language.'
-      f.puts '* LICANSE.txt -- file with licese information.'
-      f.puts '* README.md   -- Readme file in markdown style.'
+      erbout = ERB.new( $tmp_readme, 0, "%<>" )
+      f.puts erbout.result
       f.close
       # generate gitignore file for project.
       f = File.new( projectname + '/.gitignore', 'w' )
-      f.puts "*.[oad]"
-      f.puts "*.elf"
-      f.puts "*.exe"
-      f.puts "*~"
-      f.puts "*.rc2"
-      f.puts "*.bmp"
-      f.puts "*.log"
-      f.puts "*.map"
-      f.puts "*.cbp"
-      f.puts "*.workspace"
-      f.puts "*.layout"
-      f.puts "*.ini"
-      f.puts "*.ico"
-      f.puts "*.bak"
+      $tmp_gitignore.each do |line|
+        f.puts line
+      end
       f.close
     end
   end
@@ -289,24 +165,14 @@ module Maker
       Maker.makedir( appname + '/src' )
       # create local (application) configure file.
       f = File.new( appname + '/app.rb', 'w' )
-      f.puts '# Local configuration script for this application only.'
-      f.puts '# Configure your application here...'
-      f.puts ""
-      f.puts "# Write you setting for each OS types."
-      f.puts "case Maker.ostype"
-      f.puts "when 'win32'"
-      f.puts "  # TODO: only for Windows famaly (32 bitness)."
-      f.puts "when 'win64'"
-      f.puts "  # TODO: only for Windows famaly (64 bitness)."
-      f.puts "when 'unix'"
-      f.puts "  # TODO: only for Unix famaly."
-      f.puts "end"
+      $tmp_local.each do |line|
+        f.puts line
+      end
       f.close
       # create Rakefile.
       f = File.new( appname + '/Rakefile', 'w' )
-      f.puts "require '../../profile.rb'"
-      f.puts "require '../../config/config.rb'"
-      f.puts "require './app.rb'"
+      erbout = ERB.new( $tmp_rakefile, 0, "%<>" )
+      f.puts erbout.result
       f.close
     end
   end
@@ -359,20 +225,25 @@ module Maker
     include Maker
     # Redefine default handler.
     def handler
-    Maker.findproject
-    if @@options[:verbose].value != nil then
-      puts
-      puts '** ENVIRONMENT:'
-      ENV['PATH'].split(Maker::Env.delimitter).each do |env|
-        puts env
+      Maker.findproject
+      if @@options[:verbose].value != nil then
+        puts
+        puts '** ENVIRONMENT:'
+        ENV['PATH'].split(Maker::Env.delimitter).each do |env|
+          puts env
+        end
+        puts
+        puts '** USER COMMAND:'
       end
-      puts
-      puts '** USER COMMAND:'
-    end
-    print "#{$project[:name]}$ "
-    STDIN.flush
-    oscmd = STDIN.gets.strip
-    puts `#{oscmd}` if !oscmd.empty?
+      puts "input <exit> to leave loop mode.\n" if @@options[:loopmode].value != nil
+      loop do
+        print "#{$project[:name]}$ "
+        STDIN.flush
+        oscmd = STDIN.gets.strip
+        break if oscmd == 'exit'
+        puts `#{oscmd}` if !oscmd.empty?
+        break if @@options[:loopmode].value == nil
+      end
     end
   end
 
