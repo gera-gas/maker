@@ -1,7 +1,7 @@
 require "erb"
 
 module Maker
-
+  
   PROFILE = {
     # project directory tree struct.
     :systree => {
@@ -24,65 +24,67 @@ module Maker
       :makefile => 'Rakefile',
     },
     # templates directory tree struct.
-    :gentree => {
-      :template => 'templates',
-    },
-    # config directory tree struct.
     :cfgtree => {
-      :file => 'config.rb',
+      :tmp => 'templates',
+      :env => 'environments',
+      :cfg => 'config.rb'
     },
   }
 
-  # Handler of 'project' command.
-  # Project directory skelet:
-  #
-  # [project]
-  #     + [app]
-  #     + [config]
-  #         + [templates]
-  #         - config.rb
-  #     + [doc]
-  #     + [lib]
-  #     + [test]
-  #     + [tools]
-  #     + [vendor]
-  #     - project.rb
-  #     - LICENSE.txt
-  #     - README.md
-  #
-  class CLIproject < Cmdlib::Command
+  class CmdList < Thor
     include Maker
-    # Redefine default handler.
-    def handler
-      projectname = ARGV[1]
+    class_option :verbose, :type => :boolean, :aliases => "-V", :desc => "Verbose log messages to standard output."
+    class_option :version, :type => :boolean, :aliases => "-v", :desc => "Display application version to standard output."
+    
+    
+    desc "new [PROJECT-NAME]", "Create project skelet named as PROJECT-NAME"
+    # [project]
+    #     + [app]
+    #     + [config]
+    #         + [environments]
+    #         + [templates]
+    #         - config.rb
+    #     + [doc]
+    #     + [lib]
+    #     + [test]
+    #     + [tools]
+    #     + [vendor]
+    #     - project.rb
+    #     - LICENSE.txt
+    #     - README.md
+    #
+    def new( projname )
       # check to already exist project.
-      if Dir.exist?( projectname ) then
-	puts "maker: project '#{projectname}' already exist."
+      if Dir.exist?( projname ) then
+	puts "maker: project '#{projname}' already exist."
 	return
       end
-      puts "generate project : #{projectname} ..."
+      puts "generate project : #{projname} ..."
       # create base directories
-      Maker.makedir( projectname )
-      Maker.makedir( projectname + '/app' )
-      Maker.makedir( projectname + '/config' )
-      Maker.makedir( projectname + '/doc' )
-      Maker.makedir( projectname + '/lib' )
-      Maker.makedir( projectname + '/test' )
-      Maker.makedir( projectname + '/tools' )
-      Maker.makedir( projectname + '/vendor' )
+      Maker.makedir( projname )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:app]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:config]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:doc]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:lib]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:test]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:tools]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:vendor]}" )
       # create project describe file
-      f = File.new( "#{projectname}/#{@@context[:profile]}", 'w' )
+      f = File.new( "#{projname}/#{@@context[:profile]}", 'w' )
+      #erbout = ERB.new( $tmp_profile, 0, "%<>" )
+      require 'maker/templates/project.rb'
       erbout = ERB.new( $tmp_profile, 0, "%<>" )
       f.puts erbout.result
       f.close
       # generate licese for project.
+      require 'maker/templates/license.rb'
       print "Do you want use MIT license? [y/n] : "
       loop do
         STDIN.flush
         case STDIN.gets.strip
         when 'y'
           puts "generate MIT license file ..."
-          f = File.new( projectname + '/LICENSE.txt', 'w' )
+          f = File.new( "#{projname}/#{Maker::PROFILE[:systree][:license]}", 'w' )
           erbout = ERB.new( $tmp_license, 0, "%<>" )
           f.puts erbout.result
           f.close
@@ -90,161 +92,11 @@ module Maker
         when 'n'
           break
         else
-          puts 'Please type [y/n] only ...'
+          puts 'Please type [y/n]'
         end
       end
-      # set templates and config tree.
-      tmpdir = "#{projectname}/#{Maker::PROFILE[:systree][:config]}/#{Maker::PROFILE[:gentree][:template]}"
-      cfgdir = "#{projectname}/#{Maker::PROFILE[:systree][:config]}"
-      # generate templates and config tree.
-      Maker.makedir( tmpdir )
-      Maker.makedir( cfgdir )
-      # create global configure file.
-      f = File.new( "#{cfgdir}/#{Maker::PROFILE[:cfgtree][:file]}", 'w' )
-      $tmp_global.each do |line|
-        f.puts line
-      end
-      f.close
-      # create example template files.
-      f = File.new( "#{tmpdir}/main.c.erb", 'w' )
-      $tmp_main_c.each do |line|
-        f.puts line
-      end
-      f.close
-      f = File.new( "#{tmpdir}/src.erb", 'w' )
-      $tmp_cpp.each do |line|
-        f.puts line
-      end
-      f.close
-      f = File.new( "#{tmpdir}/hdr.erb", 'w' )
-      $tmp_hpp.each do |line|
-        f.puts line
-      end
-      f.close
-      # generate readme file for project.
-      f = File.new( projectname + '/README.md', 'w' )
-      erbout = ERB.new( $tmp_readme, 0, "%<>" )
-      f.puts erbout.result
-      f.close
-      # generate gitignore file for project.
-      f = File.new( projectname + '/.gitignore', 'w' )
-      $tmp_gitignore.each do |line|
-        f.puts line
-      end
-      f.close
     end
-  end
 
-
-  # Handler of 'app' command.
-  # Application directory skelet:
-  #
-  # [app]
-  #     + [include]
-  #     + [script]
-  #     + [src]
-  #     - Rakefile
-  #
-  class CLIapp < Cmdlib::Command
-    include Maker
-    # Redefine default handler.
-    def handler
-      Maker.findproject
-      # name application name.
-      appname = "#{$project[:systree][:app]}/#{ARGV[1]}"
-      # check to already exist application.
-      if Dir.exist?( appname ) then
-	puts "maker: application '#{appname}' already exist."
-	return
-      end
-      puts "generate application : #{appname} ..."
-      # create base directories
-      Maker.makedir( appname )
-      Maker.makedir( appname + '/include' )
-      Maker.makedir( appname + '/script' )
-      Maker.makedir( appname + '/src' )
-      # create local (application) configure file.
-      f = File.new( appname + '/app.rb', 'w' )
-      $tmp_local.each do |line|
-        f.puts line
-      end
-      f.close
-      # create Rakefile.
-      f = File.new( appname + '/Rakefile', 'w' )
-      erbout = ERB.new( $tmp_rakefile, 0, "%<>" )
-      f.puts erbout.result
-      f.close
-    end
-  end
-
-
-  # Generate template for source file.
-  class CLIgen < Cmdlib::Command
-    include Maker
-    # Redefine default handler.
-    def handler
-      Maker.findproject
-      # set variables.
-      srcname = ARGV[1]
-      tmpdir = "#{$project[:systree][:config]}/#{$project[:gentree][:template]}"
-      # First step => find template by name.
-      # template name = <filename> + .erb
-      tfile = "#{tmpdir}/#{srcname}.erb"
-      flist = Maker.findfiles( tmpdir, "#{srcname}.erb" )
-      # Second step => find template by extention.
-      # template name = <filename> + .erb
-      if !flist.include?( tfile ) then
-        $global[:gen].each do |pair|
-          if pair.last.include?( File.extname(srcname) ) then
-            tfile = "#{tmpdir}/#{pair.first}.erb"
-            break
-          end
-        end
-      end
-      # Run ERB for source file generation.
-      if File.exist? tfile then
-        Maker.verbose "generate file from: '#{tfile}' to '#{srcname}'"
-        # create output file.
-        f = File.new( "#{@@context[:rundir]}/#{srcname}", 'w' )
-        # read template file.
-        lines = %q{}
-        File.open( tfile, 'r' ).each do |line|
-          lines << line
-        end
-        # output result of parsing.
-        erbout = ERB.new( lines, 0, "%<>" )
-        f.puts erbout.result
-        f.close
-      end
-    end
-  end
-
-
-  # Execute OS CLI command in project environment.
-  class CLIcmd < Cmdlib::Command
-    include Maker
-    # Redefine default handler.
-    def handler
-      Maker.findproject
-      if @@options[:verbose].value != nil then
-        puts
-        puts '** ENVIRONMENT:'
-        ENV['PATH'].split(Maker::Env.delimitter).each do |env|
-          puts env
-        end
-        puts
-        puts '** USER COMMAND:'
-      end
-      puts "input <exit> to leave loop mode.\n" if @@options[:loopmode].value != nil
-      loop do
-        print "#{$project[:name]}$ "
-        STDIN.flush
-        oscmd = STDIN.gets.strip
-        break if oscmd == 'exit'
-        puts `#{oscmd}` if !oscmd.empty?
-        break if @@options[:loopmode].value == nil
-      end
-    end
   end
 
 end # module Maker

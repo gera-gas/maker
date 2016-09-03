@@ -1,0 +1,125 @@
+module Maker
+
+  # Create directory with preliminary check
+  # on exist her.
+  def self.makedir ( dir )
+    raise TypeError, 'Incorrectly types for directory name.' unless
+      dir.instance_of? String
+
+    curdir = Dir.pwd
+    
+    dir.split("/").each do |e|
+      if !Dir.exist?( e ) then
+        Dir.mkdir( e )
+      end
+      Dir.chdir( e )
+    end
+    Dir.chdir( curdir )
+  end
+
+
+  # Return filename without extention.
+  def self.filename ( file )
+    return file.split(".").first if file.include?(".")
+    return file
+  end
+
+
+  # Find project directory (find project.rb file)
+  # and return path to project. If return '' -> error.
+  def self.findproject
+    @@context[:rundir] = Dir.pwd
+    @@context[:curdir] = Dir.pwd
+    path_to_profile = "./#{@@context[:profile]}"
+    # already run in project directory.
+    if File.exist? @@context[:profile] then
+      require path_to_profile
+      require "./#{$project[:systree][:config]}/#{$project[:cfgtree][:file]}"
+      return
+    end
+    # back step in directory tree.
+    (Dir.pwd.split('/').size - 1).times do
+      Dir.chdir '../'
+      if File.exist? @@context[:profile] then
+        @@context[:curdir] = Dir.pwd
+        require path_to_profile
+        require "./#{$project[:systree][:config]}/#{$project[:cfgtree][:file]}"
+        return
+      end
+    end
+    Maker.error 'do not find project for executing this command'
+  end
+
+
+  # Error handler.
+  def self.error ( m )
+    puts "fatal error: #{m}."
+    exit
+  end
+
+
+  # Return string with OS famaly name.
+  # 'unix'  -- this is unix famaly OS.
+  # 'win32' -- this is Windows famaly (x86).
+  # 'win64' -- this is Windows famaly (amd64).
+  def self.ostype
+    osname = 'unix'
+    if ENV.keys.include?('OS') then
+      if ENV['OS'].downcase.include?( 'win') then
+        osname = 'win64'
+        if ENV['PROCESSOR_ARCHITECTURE'] == 'x86' then
+          osname = 'win32' if !ENV.keys.include?('PROCESSOR_ARCHITEW6432')
+        end
+      end
+    end
+    return osname
+  end
+
+
+  # Ruby examples method for find files.
+  def self.findfiles ( dir, name )
+    list = []
+    require 'find'
+    Find.find(dir) do |path|
+      Find.prune if [".",".."].include? path
+      case name
+        when String
+          list << path if File.basename(path) == name
+        when Regexp
+          list << path if File.basename(path) =~ name
+      else
+        raise ArgumentError
+      end
+    end
+    return list
+  end
+
+
+  # Verbose output string
+  def self.verbose ( m )
+    puts m if @@options[:verbose].value != nil
+  end
+ 
+
+  # Return true, if targetfile need update.
+  #
+  # depfiles   -- list with dependenced files.
+  # targetfile -- result file (create file from depfiles).
+  def self.needupdate? ( targetfile, depfiles )
+    return true if !File.exist?( targetfile )
+    # check each dependence.
+    depfiles.each do |dfile|
+      Maker.error( 'Unable to find file - ' + dfile ) if !File.exist?( dfile )
+      # compare dates of the files.
+      if File.mtime( dfile ) > File.mtime( targetfile ) then
+        # time of creation file grate then system time.
+        if File.mtime( dfile ) > Time.now then
+          Maker.verbose( "attention: '#{dfile}' was arrived from future." )
+        end
+        return true
+      end
+    end
+    return false
+  end
+
+end # module Maker

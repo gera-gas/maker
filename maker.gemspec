@@ -9,11 +9,30 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Anton S. Gerasimov"]
   spec.email         = ["gera_box@mail.ru"]
 
-  spec.summary       = %q{Full-stack C/C++ software framefork application.}
+  spec.summary       = %q{C/C++ embedded software framefork.}
   spec.description   = %q{}
   spec.homepage      = "https://github.com/gera-gas/maker"
   spec.license       = "MIT"
-  spec.files         = ["lib/maker.rb", "lib/maker/version.rb", "lib/maker/utils.rb", "lib/maker/cmdlist.rb", "lib/maker/application.rb", "lib/maker/env.rb", "lib/maker/templates.rb", "lib/maker/make.rb"]
+  spec.files         = ["lib/maker.rb",
+                        "lib/maker/version.rb",
+                        "lib/maker/application.rb",
+                        "lib/maker/commands/new.rb",
+                        "lib/maker/commands/app.rb",
+                        "lib/maker/commands/addon.rb",
+                        "lib/maker/utils.rb",
+                        "lib/maker/templates/addons.rb",
+                        "lib/maker/templates/project.rb",
+                        "lib/maker/templates/license.rb",
+                        "lib/maker/templates/config.rb",
+                        "lib/maker/templates/tmp_main.rb",
+                        "lib/maker/templates/tmp_cpp.rb",
+                        "lib/maker/templates/tmp_hpp.rb",
+                        "lib/maker/templates/readme.rb",
+                        "lib/maker/templates/gitignore.rb",
+                        "lib/maker/templates/env_develop.rb",
+                        "lib/maker/templates/env_test.rb",
+                        "lib/maker/templates/env_production.rb",
+                     ]
   spec.bindir        = "bin"
   spec.executables   = "maker"
   spec.require_paths = ["lib"]
@@ -21,6 +40,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
   
-  spec.add_dependency "indent_code", ">= 0.1.5"
-  spec.add_dependency "cmdlib", ">= 0.1.1"
+  #spec.add_dependency "indent_code", ">= 0.1.5"
+  spec.add_dependency "cmdlib", "~> 1.0.0"
+  spec.add_dependency "os", "~> 0.9.6"
+  #spec.add_dependency "thor", "~> 0.19.1"  
 end

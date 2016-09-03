@@ -12,6 +12,7 @@ module Maker
       self[:active]   = true
       self[:brief]    = []
       self[:ldscript] = ''
+      self[:cpplist]  = []
       self[:srcdir]   = ['src',]
       self[:hdrdir]   = ['include',]
       self[:outdir]   = 'bin'
@@ -45,8 +46,9 @@ module Maker
         :dir  => [],
       }
       self[:lib] = {
-        :path => [],
-        :name => [],
+        :path  => [],
+        :name  => [],
+        :group => [],
       }
 
       @option = {
@@ -93,6 +95,15 @@ module Maker
       f.close
     end
 
+    def loginfo ( title, listinfo )
+      if listinfo.size > 0 then
+        logtitle( title )
+        listinfo.each do |f|
+          logout f
+        end
+      end
+    end
+
     def getopt ( optlist )
       optline = ''
       optlist.each do |opt|
@@ -111,7 +122,7 @@ module Maker
       return deps
     end
     
-    private :logtitle, :logout, :getopt, :getdeps
+    private :logtitle, :logout, :getopt, :getdeps, :loginfo
 
 
     # Create copy of self object.
@@ -150,6 +161,8 @@ module Maker
         logout( v )
       end
 
+      self[:cpplist] << self[:ldscript] if self[:ldscript].length > 0
+
       self[:srcdir].each do |dir|
         Find.find(dir) do |e|
           if FileTest.directory?(e)
@@ -181,7 +194,11 @@ module Maker
         FileList.new( masklist ).each do |f|
           filein  = f
           fileout = f.ext('')
-          prelist << "erb #{filein} > #{fileout}" if Maker.needupdate?( fileout, [filein,] )
+          if Maker.needupdate?( fileout, [filein,] ) then
+            prelist << "erb #{filein} > #{fileout}"
+          else
+            prelist << "erb #{filein} > #{fileout}" if File.size( fileout ) == 0
+          end
         end
       end
       # Create list with precompute files
@@ -195,9 +212,15 @@ module Maker
         FileList.new( masklist ).each do |f|
           filein  = f
           fileout = f.ext('')
-          prelist << "erb #{filein} > #{fileout}" if Maker.needupdate?( fileout, [filein,] )
+          if Maker.needupdate?( fileout, [filein,] ) then
+            prelist << "erb #{filein} > #{fileout}"
+          else
+            prelist << "erb #{filein} > #{fileout}" if File.size( fileout ) == 0
+          end
         end
       end
+      # Create log.
+      loginfo( 'precompute', prelist )
       return prelist
     end
 
@@ -274,6 +297,103 @@ module Maker
       end
       return cpplist
     end
+
+
+    # Processing linker script file and
+    # any files from :cpplist.
+    def preprocessor
+      cpplist = []
+
+      self[:cpplist].each do |f|
+        # ѕрепроцессорнa€ обработка выполн€етс€ безусловно, т.е.
+        # без формировани€ зависимостей, т.к. зависимости формируютс€
+        # препроцессором, то не имеет смысла "гон€ть" его дважды.
+        if( @extlist[:cpp].include?(File.extname(f)) )
+          gcc = 'g++ ' + getopt( self[:option][:cxx][:cpp] )
+        else
+          gcc = 'cpp ' + getopt( self[:option][:c][:cpp] )
+        end
+        cpplist << "#{$project[:gcc][:cc]}#{gcc} -P #{@option[:inc]} #{getopt( self[:option][:cpp] )} #{f} > #{@out[:cpp]}/#{File.basename(f)}"
+      end
+      loginfo( 'preprocessor', cpplist )
+      return cpplist
+    end
+
+
+    # Compile source files.
+    def compiling
+      cclist = []
+      @makelist.each do |f|
+        depfile = File.basename( f.ext('d') )
+        deps = getdeps( "#{@out[:dep]}/#{depfile}" ).split(': ')
+        next if !Maker.needupdate?( "#{@out[:obj]}/#{deps[0]}", deps[1].split(' ') )
+        # file need recompile.
+        gcc = ''
+        opt = @option[:inc] + getopt( self[:option][:cpp] ) + getopt( self[:option][:dbg] )
+        if( @extlist[:asm].include?(File.extname(f)) )
+          gcc = 'gcc'
+          opt += getopt( self[:option][:asm][:gcc] )
+        elsif( @extlist[:c].include?(File.extname(f)) )
+          gcc = 'gcc'
+          opt += getopt( self[:option][:c][:cpp] )
+          opt += getopt( self[:option][:opt] )
+          opt += getopt( self[:option][:msg] )
+          opt += getopt( self[:option][:c][:gcc] )
+          opt += getopt( self[:option][:cpu] )
+        elsif( @extlist[:cpp].include?(File.extname(f)) )
+          gcc = 'g++'
+          opt += getopt( self[:option][:cxx][:cpp] )
+          opt += getopt( self[:option][:opt] )
+          opt += getopt( self[:option][:msg] )
+          opt += getopt( self[:option][:c][:gcc] )
+          opt += getopt( self[:option][:cpu] )
+        else
+          Maker.error( 'Unknown file type - ' + f )
+        end
+        cclist << "#{$project[:gcc][:cc]}#{gcc} #{opt} -o #{@out[:obj]}/#{deps[0]} -c #{f}"
+      end
+      loginfo( 'compile', cclist )
+      return cclist
+    end
+
+
+    # Make application (linking object files).
+    def linking
+      linkcmd = ''
+      objlist = ''
+
+      # unroll objects list to string.
+      FileList.new( @out[:obj] + '/*.o' ).each do |o|
+        objlist += " #{o}"
+      end
+      
+      case self[:outtype]
+      # Raw linking (link use "ld" utilites).
+      when 'ld'
+      # Executable format of output file.
+      when 'elf'
+        linkcmd = 'g++ '
+        self[:lib][:path].each do |p|
+          if !p.empty? then
+            if p.length > '-L'.length then
+              p = "-L#{p}" if p[0,'-L'.length] != '-L'
+            end
+            linkcmd += "#{p} "
+          end
+        end
+      # Static Library format of output file.
+      when 'a'
+        aropt = getopt( self[:option][:ar] )
+        aropt = 'rcs' if aropt.empty?
+        linkcmd = "#{$project[:gcc][:cc]}ar #{aropt} #{@out[:bin]}lib#{self[:appname]}.a #{objlist}"
+      # Shared Library format of output file.
+      when 'so'
+      else
+        Maker.error( 'Unknown format <' + self[:outtype] + '> to output file.' )
+      end
+      return linkcmd
+    end
+
   end # class App
 
 end # module Maker

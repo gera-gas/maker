@@ -29,5 +29,13 @@ rescue LoadError
 end
 
 require 'maker'
+=begin
+if ARGV[0] == "--version" or ARGV[0] == "-v"
+    puts "maker version #{Maker::VERSION}"
+    exit
+end
 
-Maker::Application.new.run
+Maker::CmdList.start ARGV
+
+=end
+Maker::Application.new
