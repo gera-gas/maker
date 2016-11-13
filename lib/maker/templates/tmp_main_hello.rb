@@ -5,9 +5,11 @@ $tmp_main = [
 ' *  @date  <%= Time.now %>',
 ' *  @brief Entry point to program.',
 ' */',
+'#include <stdio.h>',
 '',
-'int main ( void )',
+'int main ( int argc, char* argv[] )',
 '{',
+'    printf("Hello World!\n");',
 '    return 0;',
 '}'
 ]

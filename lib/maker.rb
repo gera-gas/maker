@@ -5,6 +5,7 @@ require 'maker/utils'
 require 'maker/commands/new'
 require 'maker/commands/app'
 require 'maker/commands/addon.rb'
+require 'maker/commands/gen.rb'
 require 'maker/application'
 
 module Maker

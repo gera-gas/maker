@@ -17,15 +17,15 @@ module Maker
     def handler( global_options, args )
       # check result of project searching.
       if @@context[:project] == '' then
-	puts 'error: unable to execute this command outside of project.'
-	return
+        puts 'error: unable to execute this command outside of project.'
+        return
       end
       appname = args[0]
       apppath = $project[:systree][:app]
       # check to already exist project.
       if Dir.exist?( "#{apppath}/#{appname}" ) then
-	puts "maker: application '#{appname}' already exist."
-	return
+        puts "maker: application '#{appname}' already exist."
+        return
       end
       puts "generate application : #{appname} ..."
       # create base directories
@@ -35,7 +35,6 @@ module Maker
       Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:script]}" )
       Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:src]}" )
     end
-
   end
-
+  
 end # module Maker

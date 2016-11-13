@@ -101,8 +101,14 @@ module Maker
       end
       f.close
       # create example template files.
+      require 'maker/templates/tmp_main_hello.rb'
+      f = File.new( "#{tmpdir}/main_hello.erb", 'w' )
+      $tmp_main.each do |line|
+        f.puts line
+      end
+      f.close
       require 'maker/templates/tmp_main.rb'
-      f = File.new( "#{tmpdir}/main.c.erb", 'w' )
+      f = File.new( "#{tmpdir}/main.erb", 'w' )
       $tmp_main.each do |line|
         f.puts line
       end
