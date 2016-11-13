@@ -1,9 +1,9 @@
 $tmp_hpp = [
-'<% headername = ARGV[1].upcase.gsub(?.,?_) %>',
+'<% headername = ARGV[0].upcase.gsub(?.,?_) %>',
 '#ifndef <%= headername %>',
 '#define <%= headername %>',
 '/**',
-' *  @file  <%= ARGV[1] %>',
+' *  @file  <%= ARGV[0] %>',
 ' *  @date  <%= Time.now %>',
 ' */',
 '#ifdef __cplusplus',
