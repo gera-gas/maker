@@ -2,12 +2,16 @@ require "erb"
 
 module Maker
 
-  # Generate source file from project termplates.
+  # Generate source file from project templates.
   class Gen < Cmdlib::Command
     include Maker
     def init
       @name = 'gen'
-      @brief = 'Generate source file from project termplates.'
+      @brief = 'Generate source file from project templates.'
+      @details << "You can set template file (<your project>/config/templates) by option -t."
+      @details << 'For example: maker gen main.c -t main_hello'
+      @details << 'For generate module (pair files - *.c and *.h) just skip file extension.'
+      @details << 'For example: maker gen mymodule'
       @example << '$ cd <Your path to maker project>'
       @example << '$ maker gen test.h'
       @example << '$ cat test.h'
@@ -30,45 +34,66 @@ module Maker
         puts 'error: unable to execute this command outside of project.'
         return
       end
-      outname = args[0]
-      tmpfile = ''
+      outname  = args[0]
+      tmpfile  = []
+      outfiles = []
       if @options[:template].value != nil then
         if $global_config[:gen].keys.include?( @options[:template].value.to_sym ) then
-          tmpfile = "#{$project[:systree][:config]}/#{$project[:cfgtree][:tmp]}/#{@options[:template].value}.erb"
+          tmpfile << "#{$project[:systree][:config]}/#{$project[:cfgtree][:tmp]}/#{@options[:template].value}.erb"
+          outfiles << outname
         else
           puts "error: unable to find template with name '#{@options[:template].value}'."
           return
         end
       # Search template file by extension.
       else
-        ext = outname.split('.').last
-        $global_config[:gen].each do |e|
-          if e[1].include? ext then
-            tmpfile = "#{$project[:systree][:config]}/#{$project[:cfgtree][:tmp]}/#{e[0]}.erb"
-            break
+      	extension = []
+      	if File.extname(outname) == "" then
+      	  extension << 'c'
+      	  extension << 'h'
+      	else
+      	  extension << outname.split('.').last
+      	end
+        extension.each do |ext|
+          $global_config[:gen].each do |e|
+            if e[1].include? ext then
+              tmpfile << "#{$project[:systree][:config]}/#{$project[:cfgtree][:tmp]}/#{e[0]}.erb"
+              break
+            end
+          end
+          if tmpfile == [] then
+            puts "error: unable to find template for extension '*.#{ext}'."
+            return
+          end
+          if File.extname(args[0]) == "" then
+            outfiles << outname + '.' + ext
+          else
+          	outfiles << outname
           end
         end
-        if tmpfile == '' then
-          puts "error: unable to find template for extension '*.#{ext}'."
-          return
+      end
+      tmpfile.each_with_index do |tfile, idx|
+      	# Special when generate module.
+      	if File.extname(args[0]) == "" or File.extname(args[0]) != File.extname(outfiles[idx]) then
+      	  ARGV[0] = outfiles[idx]
+      	end
+        # Output verbose statistic.
+        if global_options[:verbose].value != nil
+          puts "outfile  : #{outfiles[idx]}"
+          puts "template : #{tfile}"
         end
+        # create output file.
+        f = File.new( "#{@@context[:rundir]}/#{outfiles[idx]}", 'w' )
+        # read template file.
+        lines = %q{}
+        File.open( tfile, 'r' ).each do |line|
+          lines << line
+        end
+        # output result of parsing.
+        erbout = ERB.new( lines, 0, "%<>" )
+        f.puts erbout.result
+        f.close
       end
-      # Output verbose statistic.
-      if global_options[:verbose].value != nil
-        puts "outfile  : #{outname}"
-        puts "template : #{tmpfile}"
-      end
-      # create output file.
-      f = File.new( "#{@@context[:rundir]}/#{outname}", 'w' )
-      # read template file.
-      lines = %q{}
-      File.open( tmpfile, 'r' ).each do |line|
-        lines << line
-      end
-      # output result of parsing.
-      erbout = ERB.new( lines, 0, "%<>" )
-      f.puts erbout.result
-      f.close
     end
 
   end
