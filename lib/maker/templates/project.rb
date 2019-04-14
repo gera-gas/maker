@@ -13,7 +13,7 @@ $project = {
     :app     => '<%= Maker::PROFILE[:systree][:app] %>',
     :config  => '<%= Maker::PROFILE[:systree][:config] %>',
     :doc     => '<%= Maker::PROFILE[:systree][:doc] %>',
-    :lib     => '<%= Maker::PROFILE[:systree][:lib] %>',
+    :common  => '<%= Maker::PROFILE[:systree][:common] %>',
     :test    => '<%= Maker::PROFILE[:systree][:test] %>',
     :tools   => '<%= Maker::PROFILE[:systree][:tools] %>',
     :vendor  => '<%= Maker::PROFILE[:systree][:vendor] %>',
@@ -22,11 +22,9 @@ $project = {
   },
   # application directory tree struct.
   :apptree => {
-    :doc      => '<%= Maker::PROFILE[:apptree][:doc] %>',
-    :inc      => '<%= Maker::PROFILE[:apptree][:inc] %>',
-    :script   => '<%= Maker::PROFILE[:apptree][:script] %>',
-    :src      => '<%= Maker::PROFILE[:apptree][:src] %>',
-    :makefile => '<%= Maker::PROFILE[:apptree][:makefile] %>',
+    :doc    => '<%= Maker::PROFILE[:apptree][:doc] %>',
+    :script => '<%= Maker::PROFILE[:apptree][:script] %>',
+    :source => '<%= Maker::PROFILE[:apptree][:source] %>',
   },
   # templates directory tree struct.
   :cfgtree => {

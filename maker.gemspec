@@ -45,5 +45,6 @@ Gem::Specification.new do |spec|
   #spec.add_dependency "indent_code", ">= 0.1.5"
   spec.add_dependency "cmdlib", "~> 1.0.0"
   spec.add_dependency "os", "~> 0.9.6"
+  spec.add_dependency "ceedling", "~> 0.28.3"
   #spec.add_dependency "thor", "~> 0.19.1"  
 end

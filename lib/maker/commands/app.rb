@@ -31,9 +31,8 @@ module Maker
       # create base directories
       Maker.makedir( "#{apppath}/#{appname}" )
       Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:doc]}" )
-      Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:inc]}" )
       Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:script]}" )
-      Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:src]}" )
+      Maker.makedir( "#{apppath}/#{appname}/#{$project[:apptree][:source]}" )
     end
   end
   

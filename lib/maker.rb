@@ -26,7 +26,7 @@ module Maker
       :app     => 'app',
       :config  => 'config',
       :doc     => 'doc',
-      :lib     => 'lib',
+      :common  => 'common',
       :test    => 'test',
       :tools   => 'tools',
       :vendor  => 'vendor',
@@ -35,11 +35,9 @@ module Maker
     },
     # application directory tree struct.
     :apptree => {
-      :doc      => 'doc',
-      :inc      => 'include',
-      :script   => 'script',
-      :src      => 'src',
-      :makefile => 'Rakefile',
+      :doc     => 'doc',
+      :script  => 'script',
+      :source  => 'source',
     },
     # templates directory tree struct.
     :cfgtree => {

@@ -9,7 +9,7 @@ module Maker
   #         + [templates]
   #         - config.rb
   #     + [doc]
-  #     + [lib]
+  #     + [common]
   #     + [test]
   #     + [tools]
   #     + [vendor]
@@ -28,7 +28,7 @@ module Maker
       @details << " + [#{Maker::PROFILE[:systree][:app]}]"
       @details << " + [#{Maker::PROFILE[:systree][:config]}]"
       @details << " + [#{Maker::PROFILE[:systree][:doc]}]"
-      @details << " + [#{Maker::PROFILE[:systree][:lib]}]"
+      @details << " + [#{Maker::PROFILE[:systree][:common]}]"
       @details << " + [#{Maker::PROFILE[:systree][:test]}]"
       @details << " + [#{Maker::PROFILE[:systree][:tools]}]"
       @details << " + [#{Maker::PROFILE[:systree][:vendor]}]"
@@ -53,7 +53,7 @@ module Maker
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:app]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:config]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:doc]}" )
-      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:lib]}" )
+      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:common]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:test]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:tools]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:vendor]}" )
