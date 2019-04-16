@@ -6,6 +6,7 @@ require 'maker/commands/new'
 require 'maker/commands/app'
 require 'maker/commands/addon.rb'
 require 'maker/commands/gen.rb'
+require 'maker/commands/cfg.rb'
 require 'maker/application'
 
 module Maker
@@ -44,6 +45,7 @@ module Maker
       :add => 'addons',
       :tmp => 'templates',
       :env => 'environments',
+      :in  => 'configure_in',
       :cfg => 'config.rb'
     },
   }

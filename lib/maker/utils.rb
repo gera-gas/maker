@@ -48,5 +48,50 @@ module Maker
     end
     return false
   end
+
+  # Ruby examples method for find files.
+  def self.findfiles ( dir, name )
+    list = []
+    require 'find'
+    Find.find(dir) do |path|
+      Find.prune if [".",".."].include? path
+      case name
+        when String
+          list << path if File.basename(path) == name
+        when Regexp
+          list << path if File.basename(path) =~ name
+      else
+        raise ArgumentError
+      end
+    end
+    return list
+  end
+
+  # Configure sources method.
+  def self.configure
+    cfgin_dir  = "#{$project[:systree][:config]}/#{$project[:cfgtree][:in]}"
+    cfgout_dir = "#{$project[:systree][:common]}/generated"
+    #puts cfgin_dir #!!!
+    # Find all files with *.in extension.
+    filelist = Maker.findfiles(cfgin_dir, /\.in$/)
+    #puts "CFG values - #{$global_config[:in]}." #!!!
+    #puts filelist #!!!
+    Maker.makedir(cfgout_dir)
+    # Generate sources from configure files.
+    filelist.each do |cfgfile|
+      outfile = File.basename(cfgfile, '.in')
+      cmdline = "#{cfgfile} -o #{cfgout_dir}/#{outfile}"
+      #puts "CFG out file - #{outfile}." #!!!
+      #puts "CFG file - #{cfgfile}." #!!!
+      #puts "CFG file - #{File.basename(cfgfile.split('.')[0])}." #!!!
+      #puts "CFG const - #{$global_config[:in][File.basename(cfgfile.split('.')[0]).to_sym]}." #!!!
+      $global_config[:in][File.basename(cfgfile.split('.')[0]).to_sym].each do |key, val|
+        cmdline += " #{key}=#{val}"
+      end
+      #puts "cmdline - #{cmdline}." #!!!
+      puts "generate - #{cfgfile} ..."
+      `ccfg #{cmdline}`
+    end
+  end
   
 end # module Maker

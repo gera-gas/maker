@@ -31,6 +31,7 @@ $project = {
     :add => '<%= Maker::PROFILE[:cfgtree][:add] %>',
     :tmp => '<%= Maker::PROFILE[:cfgtree][:tmp] %>',
     :env => '<%= Maker::PROFILE[:cfgtree][:env] %>',
+    :in  => '<%= Maker::PROFILE[:cfgtree][:in] %>',
     :cfg => '<%= Maker::PROFILE[:cfgtree][:cfg] %>',
   },
 }

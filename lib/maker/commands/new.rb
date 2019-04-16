@@ -7,6 +7,8 @@ module Maker
   #     + [config]
   #         + [environments]
   #         + [templates]
+  #         + [configure_in]
+  #           - typedef.h.in
   #         - config.rb
   #     + [doc]
   #     + [common]
@@ -88,11 +90,13 @@ module Maker
       adddir = "#{projname}/#{Maker::PROFILE[:systree][:config]}/#{Maker::PROFILE[:cfgtree][:add]}"
       envdir = "#{projname}/#{Maker::PROFILE[:systree][:config]}/#{Maker::PROFILE[:cfgtree][:env]}"
       tmpdir = "#{projname}/#{Maker::PROFILE[:systree][:config]}/#{Maker::PROFILE[:cfgtree][:tmp]}"
+      indir  = "#{projname}/#{Maker::PROFILE[:systree][:config]}/#{Maker::PROFILE[:cfgtree][:in]}"
       cfgdir = "#{projname}/#{Maker::PROFILE[:systree][:config]}"
       # generate config subdirectory.
       Maker.makedir( envdir )
       Maker.makedir( tmpdir )
       Maker.makedir( adddir )
+      Maker.makedir( indir )
       # create global configure file.
       require 'maker/templates/config.rb'
       f = File.new( "#{cfgdir}/#{Maker::PROFILE[:cfgtree][:cfg]}", 'w' )
@@ -156,6 +160,11 @@ module Maker
       $env_test.each do |line|
         f.puts line
       end
+      f.close
+      f = File.new( "#{indir}/typedef.h.in", 'w' )
+      require 'maker/templates/typedef.rb'
+      erbout = ERB.new( $tmp_typedef, 0, "%<>" )
+      f.puts erbout.result
       f.close
     end
 

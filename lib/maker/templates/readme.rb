@@ -6,10 +6,10 @@ TODO: describe about your project here...
 * [<%= Maker::PROFILE[:systree][:app] %>]       -- project target applications.
 * [<%= Maker::PROFILE[:systree][:config] %>]    -- directory with configuration files and templates.
 * [<%= Maker::PROFILE[:systree][:doc] %>]       -- directory with documentation on project.
-* [<%= Maker::PROFILE[:systree][:lib] %>]       -- library applications.
-* [<%= Maker::PROFILE[:systree][:test] %>]      -- contain complex and finally tests for project.
+* [<%= Maker::PROFILE[:systree][:common] %>]    -- common project sources and headers.
+* [<%= Maker::PROFILE[:systree][:test] %>]      -- contain unit tests for project.
 * [<%= Maker::PROFILE[:systree][:tools] %>]     -- utilites and tools for project.
-* [<%= Maker::PROFILE[:systree][:vendor] %>]    -- third-party source code and executables.
+* [<%= Maker::PROFILE[:systree][:vendor] %>]    -- third-party projects and sources.
 * profile.rb  -- project structuries file in Ruby language.
 * <%= Maker::PROFILE[:systree][:license] %> -- file with licese information.
 * <%= Maker::PROFILE[:systree][:readme] %>   -- Readme file in markdown style.

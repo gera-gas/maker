@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
                         "lib/maker/commands/app.rb",
                         "lib/maker/commands/addon.rb",
                         "lib/maker/commands/gen.rb",
+                        "lib/maker/commands/cfg.rb",
                         "lib/maker/utils.rb",
                         "lib/maker/templates/addons.rb",
                         "lib/maker/templates/project.rb",
@@ -34,6 +35,7 @@ Gem::Specification.new do |spec|
                         "lib/maker/templates/env_develop.rb",
                         "lib/maker/templates/env_test.rb",
                         "lib/maker/templates/env_production.rb",
+                        "lib/maker/templates/typedef.rb",
                      ]
   spec.bindir        = "bin"
   spec.executables   = "maker"
@@ -46,5 +48,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "cmdlib", "~> 1.0.0"
   spec.add_dependency "os", "~> 0.9.6"
   spec.add_dependency "ceedling", "~> 0.28.3"
+  spec.add_dependency "ccfg", "~> 1.0.0"
   #spec.add_dependency "thor", "~> 0.19.1"  
 end

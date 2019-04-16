@@ -14,6 +14,7 @@ module Maker
       @app.addcmd App.new
       @app.addcmd Addon.new
       @app.addcmd Gen.new
+      @app.addcmd Cfg.new
       # Search project environment.
       if Maker.findproject then
         @@context[:project] = @@context[:curdir]	
