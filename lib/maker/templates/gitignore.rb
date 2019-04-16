@@ -12,5 +12,8 @@ $tmp_gitignore = [
 "*.layout",
 "*.ini",
 "*.ico",
-"*.bak"
+"*.bak",
+"build/",
+"common/generated/",
+"test/build/"
 ]

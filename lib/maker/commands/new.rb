@@ -56,9 +56,11 @@ module Maker
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:config]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:doc]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:common]}" )
-      Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:test]}" )
+      #Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:test]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:tools]}" )
       Maker.makedir( "#{projname}/#{Maker::PROFILE[:systree][:vendor]}" )
+      # Generate tests by Ceedling.
+      `ceedling new #{projname}/#{Maker::PROFILE[:systree][:test]}`
       # create project describe file
       f = File.new( "#{projname}/#{@@context[:profile]}", 'w' )
       require 'maker/templates/project.rb'

@@ -7,7 +7,6 @@ module Maker
     return str[0].upcase + str[1,str.length]
   end
   
-  
   # Create directory with preliminary check on exist.
   def self.makedir ( dir )
     raise TypeError, 'Incorrectly types for directory name.' unless
@@ -22,7 +21,6 @@ module Maker
     end
     Dir.chdir( curdir )
   end
-
   
   # Find project directory (find project.rb file)
   # and return true to project,else return false.
@@ -71,24 +69,16 @@ module Maker
   def self.configure
     cfgin_dir  = "#{$project[:systree][:config]}/#{$project[:cfgtree][:in]}"
     cfgout_dir = "#{$project[:systree][:common]}/generated"
-    #puts cfgin_dir #!!!
     # Find all files with *.in extension.
     filelist = Maker.findfiles(cfgin_dir, /\.in$/)
-    #puts "CFG values - #{$global_config[:in]}." #!!!
-    #puts filelist #!!!
     Maker.makedir(cfgout_dir)
     # Generate sources from configure files.
     filelist.each do |cfgfile|
       outfile = File.basename(cfgfile, '.in')
       cmdline = "#{cfgfile} -o #{cfgout_dir}/#{outfile}"
-      #puts "CFG out file - #{outfile}." #!!!
-      #puts "CFG file - #{cfgfile}." #!!!
-      #puts "CFG file - #{File.basename(cfgfile.split('.')[0])}." #!!!
-      #puts "CFG const - #{$global_config[:in][File.basename(cfgfile.split('.')[0]).to_sym]}." #!!!
       $global_config[:in][File.basename(cfgfile.split('.')[0]).to_sym].each do |key, val|
         cmdline += " #{key}=#{val}"
       end
-      #puts "cmdline - #{cmdline}." #!!!
       puts "generate - #{cfgfile} ..."
       `ccfg #{cmdline}`
     end
