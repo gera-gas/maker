@@ -1,0 +1,74 @@
+[project]
+name = "maker"
+version = "0.1.0"
+description = "AI-powered project and build file generator"
+readme = "README.md"
+authors = [
+    {name = "Anton S. Gerasimov", email = "gera_box@mail.ru"}
+]
+license = {text = "MIT"}
+keywords = ["cli", "code-generation", "ai", "build-tools"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "click >=8.1.0",
+    "jinja2 >=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest >=7.3.0",
+    "pytest-cov >=4.1.0",
+    "black >=23.3.0",
+    "ruff >=0.1.0",
+    "mypy >=1.3.0",
+    "pre-commit >=3.3.0",
+    "build >=0.10.0",
+]
+openai = ["openai >=1.0.0"]
+local = ["transformers >=4.30.0", "torch >=2.0.0"]
+
+[project.scripts]
+maker = "maker.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/gera-gas/maker"
+Repository = "https://github.com/gera-gas/maker"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+select = ["E", "W", "F", "I", "B"]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["maker"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v"

@@ -1,0 +1,38 @@
+repos:
+  # Базовые хуки от pre-commit
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0  # Версия
+    hooks:
+      - id: trailing-whitespace  # Удаляет лишние пробелы
+      - id: end-of-file-fixer    # Добавляет пустую строку в конец
+      - id: check-yaml          # Проверяет валидность YAML
+      - id: check-added-large-files  # Предупреждает о больших файлах
+      - id: check-toml          # Проверяет TOML файлы
+
+  # Black - автоформатировщик Python кода
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black  # Форматирует код по PEP 8
+
+  # Ruff - быстрый линтер для Python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix]  # Автоматически исправляет ошибки
+
+  # MyPy - статический анализатор типов
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests    # Типы для библиотеки requests
+          - types-PyYAML      # Типы для PyYAML
+
+  # Codespell - проверка орфографии
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell  # Ищет опечатки в коде и комментариях
