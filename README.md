@@ -49,3 +49,37 @@ uv pip install -e .
 
 ## License
 MIT License - see [LICENSE](LICENSE) file.
+
+# План по расширению проекта
+```text
+src/maker/
+├── __init__.py
+├── cli.py                      # Существующая точка входа Click
+│
+├── core/                       # НОВОЕ: Ядро системы (будущие Rust-компоненты)
+│   ├── __init__.py
+│   └── cache.py               # Будущая замена на Rust
+│
+├── processing/                 # НОВОЕ: Модуль обработки данных из нашего чата!
+│   ├── __init__.py
+│   ├── pipeline.py            # DataPreparationPipeline - главный класс
+│   ├── loaders.py             # DataLoader
+│   ├── normalizers.py         # TextNormalizer
+│   ├── parsers.py             # StructuredDataParser (JSON, списки)
+│   ├── mappers.py             # CategoryMapper
+│   ├── extractors.py          # FeatureExtractor
+│   ├── validators.py          # QualityController
+│   └── enrichers.py           # LLMEnricher - для обогащения через ИИ
+│
+├── ai/                         # НОВОЕ: Клиенты и оркестрация ИИ-моделей
+│   ├── __init__.py
+│   ├── client.py              # Универсальный клиент (OpenAI, локальный Ollama)
+│   └── prompts.py             # Управление промптами
+│
+├── templates/                  # Существующая папка для Jinja2
+│   └── ...                    # Ваши шаблоны
+│
+└── utils/                      # НОВОЕ: Общие утилиты
+    ├── __init__.py
+    └── config.py              # Загрузка YAML-конфигов
+```
