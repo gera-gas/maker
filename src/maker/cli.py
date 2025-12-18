@@ -15,10 +15,17 @@ def version():
 
 
 @cli.command()
-@click.argument("name")
-def hello(name: str):
-    """Say hello"""
-    click.echo(f"Hello, {name}! Maker is ready.")
+@click.argument("input_file", type=click.Path(exists=True))
+def process(input_file):
+    """Process data file through Maker pipeline."""
+    from maker.processing.pipeline import DataLoader
+
+    loader = DataLoader()
+    df = loader.load(input_file)
+
+    click.echo(f"Loaded {len(df)} rows, {len(df.columns)} columns")
+    click.echo(f"Columns: {', '.join(df.columns)}")
+    click.echo(f"First 3 rows:\n{df.head(3)}")
 
 
 if __name__ == "__main__":
