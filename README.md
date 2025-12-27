@@ -50,7 +50,22 @@ uv pip install -e .
 ## License
 MIT License - see [LICENSE](LICENSE) file.
 
-# План по расширению проекта
+## Design
+```bash
+# 1. Для инженера данных (наш текущий фокус)
+maker data process sales.csv --clean --enrich --validate
+maker data extract-entities logs.txt --model deepseek-coder
+
+# 2. Для разработчика (оригинальная идея)
+maker project new rust-service --template axum
+maker build generate --target wasm --toolchain nightly
+
+# 3. Общие AI-команды
+maker ai chat "Объясни этот код" --file main.rs
+maker ai translate schema.sql --from postgres --to sqlite
+```
+
+## План по расширению проекта
 ```text
 src/maker/
 ├── __init__.py
